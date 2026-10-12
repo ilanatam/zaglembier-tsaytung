@@ -8,6 +8,7 @@
       dir: 'rtl',
       subtitle: 'פרויקט תרגום העיתון · בנדין, פולין · 1929–1937',
       wipStamp: 'התרגום בעבודה',
+      missingIssue: 'חסר בארכיון',
       wipText: (n, t) => `גיליונות נוספים מתפרסמים בהדרגה · עד כה ${n} מתוך ${t}`,
       lastUpdated: d => `עדכון אחרון: ${d}`,
       navIssues: 'גיליונות', navAbout: 'על הפרויקט',
@@ -57,6 +58,7 @@
       dir: 'ltr',
       subtitle: 'Newspaper translation project · Będzin, Poland · 1929–1937',
       wipStamp: 'Work in progress',
+      missingIssue: 'Missing from the archive',
       wipText: (n, t) => `more issues are published gradually · ${n} of ${t} so far`,
       lastUpdated: d => `Last updated: ${d}`,
       navIssues: 'Issues', navAbout: 'About',
@@ -106,6 +108,7 @@
       dir: 'ltr',
       subtitle: 'Projekt tłumaczenia gazety · Będzin, Polska · 1929–1937',
       wipStamp: 'Praca w toku',
+      missingIssue: 'Brak w archiwum',
       wipText: (n, t) => `kolejne numery publikujemy stopniowo · dotąd ${n} z ${t}`,
       lastUpdated: d => `Ostatnia aktualizacja: ${d}`,
       navIssues: 'Numery', navAbout: 'O projekcie',
@@ -302,9 +305,10 @@
         const has = it.hasContent;
         const pct = has ? (it.translationPct ?? 0) : 0;
         const barCls = !has ? 'none' : pct >= 100 ? 'full' : pct > 0 ? 'part' : 'none';
-        const pctText = has ? `${pct}%` : T().notProcessed;
-        const title = has ? T().translatedPct(pct) : T().notProcessed;
-        html += `<li class="issue-row${has ? '' : ' pending'}">
+        // an issue missing from the library's archive: no gauge, just a label
+        const pctText = it.missing ? T().missingIssue : has ? `${pct}%` : T().notProcessed;
+        const title = it.missing ? T().missingIssue : has ? T().translatedPct(pct) : T().notProcessed;
+        html += `<li class="issue-row${it.missing ? ' pending missing' : has ? '' : ' pending'}">
           <a href="#/${lang}/issue/${it.date}">
             <span class="ir-num">${T().issueNo(it.num)}</span>
             <span class="ir-date">${fmtDate(it.date)}</span>
