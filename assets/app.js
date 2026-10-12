@@ -341,9 +341,10 @@
       : `<span class="badge ${esc(it.status)}">${T().statuses[it.status] || esc(it.status)}</span>`;
     const srcNote = (it.sourceLang && it.sourceLang !== 'yi' && T().srcNote[it.sourceLang])
       ? `<span class="src-chip">${T().srcNote[it.sourceLang]}</span>` : '';
-    const note = itemField(it, 'translationNote') || it.translationNote;
+    // the translator's working note (it.translationNote: where the text sits on the page,
+    // doubtful readings…) stays in the data but is not displayed
     const inner = text
-      ? `${note ? `<p class="trans-note">${esc(note)}</p>` : ''}<div class="text-he">${annotate(text)}</div>`
+      ? `<div class="text-he">${annotate(text)}</div>`
       : `<p class="no-text">${T().noTextLang}</p>`;
     const yiTitle = it.titleYi, yiText = it.textYi;
     const origYi = (yiTitle || yiText)
@@ -412,10 +413,10 @@
       return;
     }
 
-    const issueNote = content['notes' + LANG_FIELD[lang]] || (lang === 'he' ? content.notes : null);
     const byPage = {};
     content.items.forEach(it => (byPage[it.page] ??= []).push(it));
-    let body = issueNote ? `<div class="notice">${esc(issueNote)}</div>` : '';
+    // the issue-level summary (content.notes) stays in the data but is not displayed
+    let body = '';
     for (const pg of Object.keys(byPage).sort((a, b) => a - b)) {
       body += `<section class="page-group">
         <h2><span>${T().pageWord} ${pg}</span>
