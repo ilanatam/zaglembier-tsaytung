@@ -229,7 +229,8 @@ h2 { font-size: 1.25rem; font-weight: 900; margin: 1.6rem 0 .6rem; border-bottom
   background: transparent; border: 1px solid var(--ink); border-radius: 0;
   overflow: hidden; position: relative;
 }
-.issue-row.pending .ir-bar { border-color: var(--line); }
+/* an issue that isn't up yet gets no gauge at all — only the "not yet" label */
+.issue-row.pending .ir-bar { display: none; }
 .ir-fill { position: absolute; inset-block: 0; inset-inline-start: 0; background: var(--ink); border-radius: 0; }
 .ir-fill.full { background: var(--ink); }
 .ir-fill.part { background: repeating-linear-gradient(135deg, var(--ink) 0 2px, transparent 2px 4px); }
