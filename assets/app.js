@@ -622,8 +622,13 @@
       const tools = app.querySelector('.names-tools');
       if (tools.getBoundingClientRect().top <= (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 0) + 1)
         root.scrollIntoView({ block: 'start' });   // the toolbar is stuck: show the matches from their start
-      const v = input.value.trim();
-      history.replaceState(null, '', `#/${lang}/names` + (v ? '/' + encodeURIComponent(v) : ''));
+      // the address follows the filter once typing pauses (not on every keystroke)
+      clearTimeout(input._urlTimer);
+      input._urlTimer = setTimeout(() => {
+        if (!document.body.contains(input)) return;
+        const v = input.value.trim();
+        history.replaceState(null, '', `#/${lang}/names` + (v ? '/' + encodeURIComponent(v) : ''));
+      }, 900);
     });
     if (q) applyFilter();
   }
