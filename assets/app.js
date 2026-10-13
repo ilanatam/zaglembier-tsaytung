@@ -59,7 +59,7 @@
         <p>ה„זאַגלעמביער צײַטונג" (עיתון זגלמביה) היה שבועון יהודי בשפת יידיש שיצא לאור בבנדין, פולין, בין השנים 1929–1937. הארכיון הדיגיטלי שלו — 439 גיליונות ו־3,426 עמודים — שמור באוסף העיתונות של הספרייה הלאומית.</p>
         <p>מטרת הפרויקט: להנגיש את תוכן העיתון למי שאינם קוראים יידיש, כתבה אחר כתבה, בעברית, באנגלית ובפולנית. לצד כל תרגום מופיע קישור לצילום הסרוק המקורי, כדי שאפשר יהיה תמיד לחזור למקור.</p>
         <p>התרגום נעשה באופן הדרגתי, וגיליונות חדשים עולים לאתר בהדרגה. בהדרגה נשפר גם את איכות ה־OCR.</p>
-        <p>את הפרויקט עושה אילנה אורן תמיר, שאביה היה צאצא למשפחת גוטמן בבנדין. הפרויקט נולד בעקבות ביקור בבנדין וצפייה בפרויקט שימור זכר הקהילה היהודית בבנדין של אדם שידלובסקי מ<a href="https://www.facebook.com/BedzinJerusalemOfZaglembie" target="_blank" rel="noopener">עמותת רות׳קה לסקר</a> (Fundacja Rutki Laskier).</p>
+        <p>את הפרויקט עושה אילנה אורן תמיר, שאביה היה צאצא למשפחת גוטמן בבנדין. הפרויקט נולד בעקבות ביקור בבנדין וקבלת השראה מפרויקט ההנצחה של הקהילה היהודית בבנדין המרשים מאד של אדם שידלובסקי מ<a href="https://www.facebook.com/BedzinJerusalemOfZaglembie" target="_blank" rel="noopener">עמותת רות׳קה לסקר</a> (Fundacja Rutki Laskier).</p>
         <p>ליצירת קשר: <a href="mailto:ilanatamir@gmail.com">ilanatamir@gmail.com</a></p>`,
       footer: 'המקור הסרוק: <a href="https://www.nli.org.il/he/newspapers/zaglembiercajtung" target="_blank" rel="noopener">אוסף העיתונות, הספרייה הלאומית</a>'
     },
@@ -118,7 +118,7 @@
         <p>The "Zaglembier Tsaytung" (Zagłębie Newspaper) was a Jewish weekly in Yiddish published in Będzin, Poland, from 1929 to 1937. Its digital archive — 439 issues, 3,426 pages — is held in the National Library of Israel's press collection.</p>
         <p>The project's goal: to make the newspaper accessible to readers of Hebrew, English and Polish, article by article. Each translation links to the original scan, so the source is always one click away.</p>
         <p>The translation is being done gradually, and new issues are added to the site gradually. Over time we will also gradually improve the quality of the OCR.</p>
-        <p>The project is the work of Ilana Oren Tamir, whose father was a descendant of the Gutman family of Będzin. It grew out of a visit to Będzin and an encounter with the project to preserve the memory of Będzin's Jewish community led by Adam Szydłowski of the <a href="https://www.facebook.com/BedzinJerusalemOfZaglembie" target="_blank" rel="noopener">Rutka Laskier Foundation</a> (Fundacja Rutki Laskier).</p>
+        <p>The project is the work of Ilana Oren Tamir, whose father was a descendant of the Gutman family of Będzin. It grew out of a visit to Będzin and was inspired by the very impressive project commemorating Będzin's Jewish community, led by Adam Szydłowski of the <a href="https://www.facebook.com/BedzinJerusalemOfZaglembie" target="_blank" rel="noopener">Rutka Laskier Foundation</a> (Fundacja Rutki Laskier).</p>
         <p>Contact: <a href="mailto:ilanatamir@gmail.com">ilanatamir@gmail.com</a></p>`,
       footer: 'Original scans: <a href="https://www.nli.org.il/he/newspapers/zaglembiercajtung" target="_blank" rel="noopener">JPress, National Library of Israel</a>'
     },
@@ -177,7 +177,7 @@
         <p>„Zaglembier Cajtung" (Gazeta Zagłębiowska) był żydowskim tygodnikiem w języku jidysz, wydawanym w Będzinie w latach 1929–1937. Jego cyfrowe archiwum — 439 numerów, 3426 stron — znajduje się w kolekcji prasy Biblioteki Narodowej Izraela.</p>
         <p>Cel projektu: udostępnić treść gazety czytelnikom hebrajskiego, angielskiego i polskiego, artykuł po artykule. Każde tłumaczenie zawiera odnośnik do oryginalnego skanu.</p>
         <p>Tłumaczenie powstaje stopniowo, a nowe numery są stopniowo dodawane do serwisu. Stopniowo będziemy też poprawiać jakość OCR.</p>
-        <p>Projekt prowadzi Ilana Oren Tamir, której ojciec był potomkiem rodziny Gutmanów z Będzina. Pomysł narodził się po wizycie w Będzinie i zapoznaniu się z projektem upamiętniania będzińskiej społeczności żydowskiej, prowadzonym przez Adama Szydłowskiego z <a href="https://www.facebook.com/BedzinJerusalemOfZaglembie" target="_blank" rel="noopener">Fundacji Rutki Laskier</a>.</p>
+        <p>Projekt prowadzi Ilana Oren Tamir, której ojciec był potomkiem rodziny Gutmanów z Będzina. Pomysł narodził się po wizycie w Będzinie, z inspiracji bardzo imponującym projektem upamiętniania będzińskiej społeczności żydowskiej, prowadzonym przez Adama Szydłowskiego z <a href="https://www.facebook.com/BedzinJerusalemOfZaglembie" target="_blank" rel="noopener">Fundacji Rutki Laskier</a>.</p>
         <p>Kontakt: <a href="mailto:ilanatamir@gmail.com">ilanatamir@gmail.com</a></p>`,
       footer: 'Oryginalne skany: <a href="https://www.nli.org.il/he/newspapers/zaglembiercajtung" target="_blank" rel="noopener">JPress, Biblioteka Narodowa Izraela</a>'
     }
