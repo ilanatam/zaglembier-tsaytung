@@ -45,6 +45,7 @@
       prevIssue: 'הקודם', nextIssue: 'הבא', issuePager: 'מעבר בין גיליונות',
       navSearch: 'חיפוש', searchPlaceholder: 'חיפוש בכל התרגומים…',
       toTop: 'חזרה לראש העמוד',
+      yearsNav: 'ניווט לפי שנים', yearTranslated: n => `${n} מתורגמים`, yearTitle: (y, n) => `${y}: ${n} גיליונות מתורגמים`,
       navNames: 'אינדקס שמות', namesTitle: 'אינדקס שמות',
       namesIntro: 'שמות האנשים הנזכרים בכתבות המתורגמות, לפי שם משפחה. לחיצה על שם משפחה פותחת את השמות הפרטיים, ולחיצה על שם פותחת את רשימת הכתבות שבהן הוא נזכר. האינדקס גדל עם הוספת גיליונות; אותו שם עשוי להופיע בכמה איותים.',
       namesFilter: 'סינון לפי שם משפחה…', namesNoGiven: '(ללא שם פרטי)',
@@ -103,6 +104,7 @@
       prevIssue: 'Previous', nextIssue: 'Next', issuePager: 'Issue navigation',
       navSearch: 'Search', searchPlaceholder: 'Search all translations…',
       toTop: 'Back to top',
+      yearsNav: 'Jump to a year', yearTranslated: n => `${n} translated`, yearTitle: (y, n) => `${y}: ${n} translated issues`,
       navNames: 'Name index', namesTitle: 'Index of names',
       namesIntro: 'The people named in the translated articles, by surname. Click a surname to see the given names, and a name to see the articles that mention it. The index grows as issues are added; the same name may appear in several spellings.',
       namesFilter: 'Filter by surname…', namesNoGiven: '(no given name)',
@@ -161,6 +163,7 @@
       prevIssue: 'Poprzedni', nextIssue: 'Następny', issuePager: 'Nawigacja między numerami',
       navSearch: 'Szukaj', searchPlaceholder: 'Przeszukaj wszystkie tłumaczenia…',
       toTop: 'Do góry strony',
+      yearsNav: 'Przejdź do roku', yearTranslated: n => `${n} przetłum.`, yearTitle: (y, n) => `${y}: przetłumaczone numery — ${n}`,
       navNames: 'Indeks nazwisk', namesTitle: 'Indeks nazwisk',
       namesIntro: 'Osoby wymienione w przetłumaczonych artykułach, według nazwisk. Kliknij nazwisko, aby zobaczyć imiona, a imię — aby zobaczyć artykuły, w których występuje. Indeks rośnie wraz z dodawaniem numerów; to samo nazwisko może występować w kilku pisowniach.',
       namesFilter: 'Filtruj według nazwiska…', namesNoGiven: '(bez imienia)',
@@ -346,8 +349,14 @@
         <p class="facts">${T().facts(np.issueCount, np.pageCount)}</p>
         <p class="facts gap-note">${T().gapNote}</p>
       </div>`;
-    for (const y of Object.keys(byYear).sort()) {
-      html += `<section class="year-block"><h2 class="year-head">${y}</h2><ul class="issue-list">`;
+    // quick navigation by year, with the number of translated issues in each
+    const years = Object.keys(byYear).sort();
+    html += `<nav class="years-nav" aria-label="${esc(T().yearsNav)}">${years.map(y => {
+      const n = byYear[y].filter(it => it.hasContent && !it.missing && (it.translationPct ?? 0) > 0).length;
+      return `<a href="#/${lang}/" data-year="${y}" title="${esc(T().yearTitle(y, n))}"><span class="yn-year">${y}</span><span class="yn-count">${esc(T().yearTranslated(n))}</span></a>`;
+    }).join('')}</nav>`;
+    for (const y of years) {
+      html += `<section class="year-block" data-year="${y}"><h2 class="year-head">${y}</h2><ul class="issue-list">`;
       for (const it of byYear[y]) {
         const has = it.hasContent;
         const pct = has ? (it.translationPct ?? 0) : 0;
@@ -369,6 +378,15 @@
       html += '</ul></section>';
     }
     app.innerHTML = html;
+    const yn = app.querySelector('.years-nav');
+    stickyWatch(yn, '--tools-h');
+    yn.addEventListener('click', ev => {
+      const a = ev.target.closest('a[data-year]');
+      if (!a) return;
+      ev.preventDefault();
+      const sec = app.querySelector(`.year-block[data-year="${a.dataset.year}"]`);
+      if (sec) sec.scrollIntoView({ behavior: Math.abs(sec.getBoundingClientRect().top) > innerHeight * 3 ? 'auto' : 'smooth', block: 'start' });
+    });
   }
 
   function ocrChip(it) {

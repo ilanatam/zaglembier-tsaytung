@@ -198,8 +198,38 @@ h2 { font-size: 1.25rem; font-weight: 900; margin: 1.6rem 0 .6rem; border-bottom
 .intro p { margin: .4rem auto; max-width: 46rem; }
 .intro .facts { color: var(--muted); font-size: .95rem; }
 
+/* quick navigation by year: stays under the section index while the list scrolls */
+.years-nav {
+  position: sticky; top: var(--nav-h, 0px); z-index: 700;
+  display: flex; justify-content: center; gap: 0;
+  background: var(--bg);
+  padding: .35rem 0 .3rem; margin: 1rem 0 .4rem;
+  border-block: 1px solid var(--rule);
+  font-variant-numeric: lining-nums;
+}
+.years-nav a {
+  flex: 1 1 0; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; gap: .05rem;
+  color: var(--ink); padding: .1rem .3rem; line-height: 1.15; text-align: center;
+}
+.years-nav a + a { border-inline-start: 1px solid var(--line); }
+.years-nav a:hover { background: var(--ink); color: var(--bg); text-decoration: none; }
+.yn-year { font-weight: 900; font-size: 1.08rem; }
+.yn-count { font-size: .74rem; color: var(--muted); white-space: nowrap; }
+.years-nav a:hover .yn-count { color: inherit; }
+@media (max-width: 700px) {
+  /* one row, scrolled sideways, fading out at its far end */
+  .years-nav { justify-content: flex-start; overflow-x: auto; scrollbar-width: none; }
+  .years-nav::-webkit-scrollbar { display: none; }
+  .years-nav a { flex: none; padding-inline: .7rem; }
+  .years-nav a:last-child { margin-inline-end: 2rem; }
+  html[dir="rtl"] .years-nav { -webkit-mask-image: linear-gradient(to left, #000 86%, transparent); mask-image: linear-gradient(to left, #000 86%, transparent); }
+  html[dir="ltr"] .years-nav { -webkit-mask-image: linear-gradient(to right, #000 86%, transparent); mask-image: linear-gradient(to right, #000 86%, transparent); }
+}
+@media print { .years-nav { position: static; } }
+
 /* Year sections + vertical issue list (set like an index column) */
-.year-block { margin-bottom: 1.8rem; }
+.year-block { margin-bottom: 1.8rem; scroll-margin-top: calc(var(--nav-h, 0px) + var(--tools-h, 0px)); }
 .year-head {
   display: flex; align-items: center; gap: 1rem;
   font-size: 1.7rem; font-weight: 900; line-height: 1;
