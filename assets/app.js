@@ -44,6 +44,13 @@
       suggestSent: 'ההצעה נשלחה לבדיקה ✓',
       prevIssue: 'הקודם', nextIssue: 'הבא', issuePager: 'מעבר בין גיליונות',
       navSearch: 'חיפוש', searchPlaceholder: 'חיפוש בכל התרגומים…',
+      toTop: 'חזרה לראש העמוד',
+      navNames: 'אינדקס שמות', namesTitle: 'אינדקס שמות',
+      namesIntro: 'שמות האנשים הנזכרים בכתבות המתורגמות, לפי שם משפחה. לחיצה על שם משפחה פותחת את השמות הפרטיים, ולחיצה על שם פותחת את רשימת הכתבות שבהן הוא נזכר. האינדקס גדל עם הוספת גיליונות; אותו שם עשוי להופיע בכמה איותים.',
+      namesFilter: 'סינון לפי שם משפחה…', namesNoGiven: '(ללא שם פרטי)',
+      namesMentions: n => n === 1 ? 'כתבה אחת' : `${n} כתבות`, namesVariants: 'איותים נוספים:',
+      namesNone: 'לא נמצאו שמות.', namesLoading: 'טוען את אינדקס השמות…', namesEmpty: 'אינדקס השמות עדיין לא נבנה.',
+      namesSummary: (s, p) => `${s} שמות משפחה · ${p} שמות`,
       searchTitle: 'חיפוש', searchPrompt: 'הקלד/י מילה או שם כדי לחפש בכל הכתבות המתורגמות.',
       searchNoResults: 'לא נמצאו תוצאות עבור', searchResults: n => `${n} תוצאות`,
       searchIn: 'בגיליון', searchLoading: 'סורק את הארכיון…',
@@ -51,8 +58,9 @@
         <p>ה„זאַגלעמביער צײַטונג" (עיתון זגלמביה) היה שבועון יהודי בשפת יידיש שיצא לאור בבנדין, פולין, בין השנים 1929–1937. הארכיון הדיגיטלי שלו — 439 גיליונות ו־3,426 עמודים — שמור באוסף העיתונות של הספרייה הלאומית.</p>
         <p>מטרת הפרויקט: להנגיש את תוכן העיתון למי שאינם קוראים יידיש, כתבה אחר כתבה, בעברית, באנגלית ובפולנית. לצד כל תרגום מופיע קישור לצילום הסרוק המקורי, כדי שאפשר יהיה תמיד לחזור למקור.</p>
         <p>התרגום נעשה באופן הדרגתי, וגיליונות חדשים עולים לאתר בהדרגה. בהדרגה נשפר גם את איכות ה־OCR.</p>
-        <p>את הפרויקט עושה אילנה אורן תמיר, שאביה היה צאצא למשפחת גוטמן בבנדין. הפרויקט נולד בעקבות ביקור בבנדין וצפייה בפרויקט שימור זכר הקהילה היהודית בבנדין של אדם שידלובסקי מ<a href="https://www.facebook.com/BedzinJerusalemOfZaglembie" target="_blank" rel="noopener">עמותת רות׳קה לסקר</a> (Fundacja Rutki Laskier).</p>`,
-      footer: 'המקור הסרוק: <a href="https://www.nli.org.il/he/newspapers/zaglembiercajtung" target="_blank" rel="noopener">אוסף העיתונות, הספרייה הלאומית</a> · הועלה בסיוע The Judaica Division, Harvard University Library וקרן ליטאואר'
+        <p>את הפרויקט עושה אילנה אורן תמיר, שאביה היה צאצא למשפחת גוטמן בבנדין. הפרויקט נולד בעקבות ביקור בבנדין וצפייה בפרויקט שימור זכר הקהילה היהודית בבנדין של אדם שידלובסקי מ<a href="https://www.facebook.com/BedzinJerusalemOfZaglembie" target="_blank" rel="noopener">עמותת רות׳קה לסקר</a> (Fundacja Rutki Laskier).</p>
+        <p>ליצירת קשר: <a href="mailto:ilanatamir@gmail.com">ilanatamir@gmail.com</a></p>`,
+      footer: 'המקור הסרוק: <a href="https://www.nli.org.il/he/newspapers/zaglembiercajtung" target="_blank" rel="noopener">אוסף העיתונות, הספרייה הלאומית</a>'
     },
     en: {
       dir: 'ltr',
@@ -94,6 +102,13 @@
       suggestSent: 'Suggestion submitted for review ✓',
       prevIssue: 'Previous', nextIssue: 'Next', issuePager: 'Issue navigation',
       navSearch: 'Search', searchPlaceholder: 'Search all translations…',
+      toTop: 'Back to top',
+      navNames: 'Name index', namesTitle: 'Index of names',
+      namesIntro: 'The people named in the translated articles, by surname. Click a surname to see the given names, and a name to see the articles that mention it. The index grows as issues are added; the same name may appear in several spellings.',
+      namesFilter: 'Filter by surname…', namesNoGiven: '(no given name)',
+      namesMentions: n => n === 1 ? '1 article' : `${n} articles`, namesVariants: 'Other spellings:',
+      namesNone: 'No names found.', namesLoading: 'Loading the name index…', namesEmpty: 'The name index has not been built yet.',
+      namesSummary: (s, p) => `${s} surnames · ${p} names`,
       searchTitle: 'Search', searchPrompt: 'Type a word or name to search all translated articles.',
       searchNoResults: 'No results for', searchResults: n => `${n} results`,
       searchIn: 'in the issue of', searchLoading: 'Scanning the archive…',
@@ -101,8 +116,9 @@
         <p>The "Zaglembier Tsaytung" (Zagłębie Newspaper) was a Jewish weekly in Yiddish published in Będzin, Poland, from 1929 to 1937. Its digital archive — 439 issues, 3,426 pages — is held in the National Library of Israel's press collection.</p>
         <p>The project's goal: to make the newspaper accessible to readers of Hebrew, English and Polish, article by article. Each translation links to the original scan, so the source is always one click away.</p>
         <p>The translation is being done gradually, and new issues are added to the site gradually. Over time we will also gradually improve the quality of the OCR.</p>
-        <p>The project is the work of Ilana Oren Tamir, whose father was a descendant of the Gutman family of Będzin. It grew out of a visit to Będzin and an encounter with the project to preserve the memory of Będzin's Jewish community led by Adam Szydłowski of the <a href="https://www.facebook.com/BedzinJerusalemOfZaglembie" target="_blank" rel="noopener">Rutka Laskier Foundation</a> (Fundacja Rutki Laskier).</p>`,
-      footer: 'Original scans: <a href="https://www.nli.org.il/he/newspapers/zaglembiercajtung" target="_blank" rel="noopener">JPress, National Library of Israel</a> · Digitized with the Judaica Division, Harvard University Library and the Littauer Foundation'
+        <p>The project is the work of Ilana Oren Tamir, whose father was a descendant of the Gutman family of Będzin. It grew out of a visit to Będzin and an encounter with the project to preserve the memory of Będzin's Jewish community led by Adam Szydłowski of the <a href="https://www.facebook.com/BedzinJerusalemOfZaglembie" target="_blank" rel="noopener">Rutka Laskier Foundation</a> (Fundacja Rutki Laskier).</p>
+        <p>Contact: <a href="mailto:ilanatamir@gmail.com">ilanatamir@gmail.com</a></p>`,
+      footer: 'Original scans: <a href="https://www.nli.org.il/he/newspapers/zaglembiercajtung" target="_blank" rel="noopener">JPress, National Library of Israel</a>'
     },
     pl: {
       dir: 'ltr',
@@ -144,6 +160,13 @@
       suggestSent: 'Propozycja wysłana do weryfikacji ✓',
       prevIssue: 'Poprzedni', nextIssue: 'Następny', issuePager: 'Nawigacja między numerami',
       navSearch: 'Szukaj', searchPlaceholder: 'Przeszukaj wszystkie tłumaczenia…',
+      toTop: 'Do góry strony',
+      navNames: 'Indeks nazwisk', namesTitle: 'Indeks nazwisk',
+      namesIntro: 'Osoby wymienione w przetłumaczonych artykułach, według nazwisk. Kliknij nazwisko, aby zobaczyć imiona, a imię — aby zobaczyć artykuły, w których występuje. Indeks rośnie wraz z dodawaniem numerów; to samo nazwisko może występować w kilku pisowniach.',
+      namesFilter: 'Filtruj według nazwiska…', namesNoGiven: '(bez imienia)',
+      namesMentions: n => n === 1 ? '1 artykuł' : `${n} art.`, namesVariants: 'Inne pisownie:',
+      namesNone: 'Nie znaleziono nazwisk.', namesLoading: 'Wczytywanie indeksu nazwisk…', namesEmpty: 'Indeks nazwisk nie został jeszcze utworzony.',
+      namesSummary: (s, p) => `${s} nazwisk · ${p} osób`,
       searchTitle: 'Szukaj', searchPrompt: 'Wpisz słowo lub nazwisko, aby przeszukać wszystkie przetłumaczone artykuły.',
       searchNoResults: 'Brak wyników dla', searchResults: n => `${n} wyników`,
       searchIn: 'w numerze z', searchLoading: 'Przeszukiwanie archiwum…',
@@ -151,8 +174,9 @@
         <p>„Zaglembier Cajtung" (Gazeta Zagłębiowska) był żydowskim tygodnikiem w języku jidysz, wydawanym w Będzinie w latach 1929–1937. Jego cyfrowe archiwum — 439 numerów, 3426 stron — znajduje się w kolekcji prasy Biblioteki Narodowej Izraela.</p>
         <p>Cel projektu: udostępnić treść gazety czytelnikom hebrajskiego, angielskiego i polskiego, artykuł po artykule. Każde tłumaczenie zawiera odnośnik do oryginalnego skanu.</p>
         <p>Tłumaczenie powstaje stopniowo, a nowe numery są stopniowo dodawane do serwisu. Stopniowo będziemy też poprawiać jakość OCR.</p>
-        <p>Projekt prowadzi Ilana Oren Tamir, której ojciec był potomkiem rodziny Gutmanów z Będzina. Pomysł narodził się po wizycie w Będzinie i zapoznaniu się z projektem upamiętniania będzińskiej społeczności żydowskiej, prowadzonym przez Adama Szydłowskiego z <a href="https://www.facebook.com/BedzinJerusalemOfZaglembie" target="_blank" rel="noopener">Fundacji Rutki Laskier</a>.</p>`,
-      footer: 'Oryginalne skany: <a href="https://www.nli.org.il/he/newspapers/zaglembiercajtung" target="_blank" rel="noopener">JPress, Biblioteka Narodowa Izraela</a> · Digitalizacja: Judaica Division, Harvard University Library oraz Littauer Foundation'
+        <p>Projekt prowadzi Ilana Oren Tamir, której ojciec był potomkiem rodziny Gutmanów z Będzina. Pomysł narodził się po wizycie w Będzinie i zapoznaniu się z projektem upamiętniania będzińskiej społeczności żydowskiej, prowadzonym przez Adama Szydłowskiego z <a href="https://www.facebook.com/BedzinJerusalemOfZaglembie" target="_blank" rel="noopener">Fundacji Rutki Laskier</a>.</p>
+        <p>Kontakt: <a href="mailto:ilanatamir@gmail.com">ilanatamir@gmail.com</a></p>`,
+      footer: 'Oryginalne skany: <a href="https://www.nli.org.il/he/newspapers/zaglembiercajtung" target="_blank" rel="noopener">JPress, Biblioteka Narodowa Izraela</a>'
     }
   };
 
@@ -199,6 +223,26 @@
   }
 
   /* ---------- chrome (header/footer/lang switch) ---------- */
+  // heights of the sticky bars, published as CSS variables (used for offsets and scroll margins)
+  const stickyObs = typeof ResizeObserver === 'function' ? new ResizeObserver(es => {
+    for (const e of es) document.documentElement.style.setProperty(e.target.dataset.hVar, Math.ceil(e.target.getBoundingClientRect().height) + 'px');
+  }) : null;
+  function stickyWatch(el, cssVar) {
+    if (!el) return;
+    el.dataset.hVar = cssVar;
+    document.documentElement.style.setProperty(cssVar, Math.ceil(el.getBoundingClientRect().height) + 'px');
+    if (stickyObs) stickyObs.observe(el);
+  }
+  stickyWatch(document.getElementById('nav-bar'), '--nav-h');
+  (function () {
+    const btn = document.getElementById('to-top');
+    if (!btn) return;
+    let tick = false;
+    const upd = () => { tick = false; btn.hidden = window.scrollY < 700; };
+    window.addEventListener('scroll', () => { if (!tick) { tick = true; requestAnimationFrame(upd); } }, { passive: true });
+    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: window.scrollY > innerHeight * 4 ? 'auto' : 'smooth' }));
+  })();
+
   function applyChrome() {
     document.documentElement.lang = lang;
     document.documentElement.dir = T().dir;
@@ -212,9 +256,12 @@
     setNav('nav-issues', T().navIssues, `#/${lang}/`);
     setNav('nav-about', T().navAbout, `#/${lang}/about`);
     setNav('nav-search', T().navSearch, `#/${lang}/search`);
+    setNav('nav-names', T().navNames, `#/${lang}/names`);
     const brand = document.querySelector('a.brand');
     if (brand) brand.setAttribute('href', `#/${lang}/`);
     document.getElementById('site-footer-text').innerHTML = T().footer;
+    const top = document.getElementById('to-top');
+    if (top) { top.title = T().toTop; top.setAttribute('aria-label', T().toTop); }
     document.querySelectorAll('.lang-switch button').forEach(b => {
       b.classList.toggle('active', b.dataset.lang === lang);
     });
@@ -443,6 +490,144 @@
     }
   }
 
+  /* ---------- index of names: surname → given names → articles ---------- */
+  let namesDB = null;
+  async function loadNames() {
+    if (namesDB) return namesDB;
+    const r = await fetch('data/names.json', {cache: 'no-cache'});
+    namesDB = r.ok ? await r.json() : { surnames: [] };
+    return namesDB;
+  }
+  const foldLat = s => (s || '').toLowerCase().replace(/ł/g, 'l').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  // Hebrew-letter names are also compared by consonant skeleton, so that a Yiddish spelling finds the
+  // Hebrew one and vice versa (גוטמאן = גוטמן, ברוקנער = ברוקנר): final letters → regular, no א/ע inside a word, ו/י runs → one
+  const HE_FINALS = { 'ך': 'כ', 'ם': 'מ', 'ן': 'נ', 'ף': 'פ', 'ץ': 'צ' };
+  const foldHe = s => (s || '').replace(/[\u0591-\u05C7]/g, '').replace(/\u05F2/g, 'יי').replace(/\u05F0/g, 'וו').replace(/\u05F1/g, 'וי')
+    .replace(/[ךםןףץ]/g, c => HE_FINALS[c]).replace(/(?<=[\u05D0-\u05EA])[אע]/g, '').replace(/ו+/g, 'ו').replace(/י+/g, 'י');
+
+  async function namesView(q) {
+    currentIssueDate = null;
+    app.innerHTML = `<h1>${T().namesTitle}</h1><p class="loading">${T().namesLoading}</p>`;
+    const db = await loadNames();
+    if (!db.surnames.length) { app.innerHTML = `<h1>${T().namesTitle}</h1><p class="search-hint">${T().namesEmpty}</p>`; return; }
+    const he = lang === 'he';
+    // primary script follows the interface language: Hebrew letters in Hebrew, Latin otherwise
+    const prim = e => (he ? e.he || e.lat : e.lat || e.he) || '';
+    const alt = e => (he ? (e.he ? e.lat : '') : (e.lat ? e.he : '')) || '';
+    const coll = new Intl.Collator(he ? 'he' : lang === 'pl' ? 'pl' : 'en');
+    // section letter: first letter of the name; outside the Polish interface Ł/Ś/Ż… fold into L/S/Z
+    const letterOf = p => {
+      let c = (p.match(/[\p{L}]/u) || ['#'])[0];
+      if (/[\u05D0-\u05EA]/.test(c)) return c;
+      c = c.toLocaleUpperCase(lang);
+      return lang === 'pl' ? c : c.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace('Ł', 'L');
+    };
+    const list = db.surnames.map((e, i) => { const p = prim(e); return { e, i, p, L: letterOf(p) }; })
+      .sort((a, b) => coll.compare(a.L, b.L) || coll.compare(a.p, b.p));
+    const nPeople = db.surnames.reduce((n, e) => n + e.people.length, 0);
+    const letters = [];
+    let body = '', cur = null;
+    for (const x of list) {
+      const L = x.L;
+      if (L !== cur) {
+        if (cur !== null) body += '</div></section>';
+        cur = L; letters.push(L);
+        body += `<section class="names-letter" data-letter="${esc(L)}"><h2 class="names-letter-head" id="nm-${esc(L)}">${esc(L)}</h2><div class="nm-list">`;
+      }
+      const e = x.e, n = new Set(e.people.flatMap(p => p.refs.map(r => r[0] + '|' + r[1]))).size;
+      const hay = foldLat([e.he, e.lat, ...(e.vars || [])].join(' '));
+      body += `<details class="nm-sur" data-i="${x.i}" data-hay="${esc(hay)}">
+        <summary><span class="nm-name">${esc(x.p)}</span>${alt(e) ? ` <span class="nm-alt" dir="auto">${esc(alt(e))}</span>` : ''}<span class="nm-count">${n}</span></summary>
+        <div class="nm-body"></div></details>`;
+    }
+    if (cur !== null) body += '</div></section>';
+    app.innerHTML = `<h1>${T().namesTitle}</h1>
+      <p class="names-intro">${T().namesIntro}</p>
+      <p class="names-summary">${T().namesSummary(db.surnames.length, nPeople)}</p>
+      <div class="names-tools">
+        <div class="search-box"><input id="names-q" type="search" value="${esc(q)}" placeholder="${esc(T().namesFilter)}" autocomplete="off"></div>
+        <nav class="names-letters">${letters.map(L => `<a href="#nm-${esc(L)}" data-letter="${esc(L)}">${esc(L)}</a>`).join('')}</nav>
+      </div>
+      <p class="search-hint names-none" hidden>${T().namesNone}</p>
+      <div class="names-index">${body}</div>`;
+
+    const root = app.querySelector('.names-index');
+    const personLabel = p => (he ? p.he || p.lat : p.lat || p.he) || T().namesNoGiven;
+    const personAlt = p => (he ? (p.he ? p.lat : '') : (p.lat ? p.he : '')) || '';
+    function fillSurname(d) {
+      const e = db.surnames[+d.dataset.i], box = d.querySelector('.nm-body');
+      if (box.dataset.done) return; box.dataset.done = '1';
+      let h = e.vars && e.vars.length ? `<p class="nm-vars">${T().namesVariants} <span dir="auto">${e.vars.map(esc).join(' · ')}</span></p>` : '';
+      e.people.forEach((p, pi) => {
+        const notes = he && p.notes ? ` <span class="nm-note">${esc(p.notes.join('; '))}</span>` : '';
+        h += `<details class="nm-per" data-p="${pi}"${e.people.length === 1 ? ' open' : ''}>
+          <summary><span class="nm-name">${esc(personLabel(p))}${p.q ? ' <span class="ed-note">[?]</span>' : ''}</span>${personAlt(p) ? ` <span class="nm-alt" dir="auto">${esc(personAlt(p))}</span>` : ''}${notes}<span class="nm-count">${T().namesMentions(p.refs.length)}</span></summary>
+          <ul class="nm-refs"></ul></details>`;
+      });
+      box.innerHTML = h;
+      box.querySelectorAll('.nm-per[open]').forEach(fillPerson);
+    }
+    async function fillPerson(d) {
+      const ul = d.querySelector('.nm-refs');
+      if (ul.dataset.done) return; ul.dataset.done = '1';
+      const e = db.surnames[+d.closest('.nm-sur').dataset.i], p = e.people[+d.dataset.p];
+      ul.innerHTML = p.refs.map(([date, id]) =>
+        `<li><a href="#/${lang}/issue/${date}/${esc(id)}" data-date="${date}" data-id="${esc(id)}"><span class="nm-date">${fmtDate(date)}</span><span class="nm-title"></span></a></li>`).join('');
+      // article titles come from the issue files, fetched only when a name is opened
+      for (const a of ul.querySelectorAll('a')) {
+        const content = await loadContent(a.dataset.date);
+        const it = content && content.items.find(x => String(x.id) === a.dataset.id);
+        if (!it) continue;
+        const title = itemField(it, 'title') || T().untranslated;
+        a.querySelector('.nm-title').textContent = ` · ${T().pageWord} ${it.page} · ${title}`;
+      }
+    }
+    root.addEventListener('toggle', ev => {
+      const d = ev.target;
+      if (!d.open) return;
+      if (d.classList.contains('nm-sur')) fillSurname(d);
+      else if (d.classList.contains('nm-per')) fillPerson(d);
+    }, true);
+
+    stickyWatch(app.querySelector('.names-tools'), '--tools-h');
+    // the letter bar scrolls inside the page; a plain "#nm-x" link would change the hash and be taken for a route
+    app.querySelector('.names-letters').addEventListener('click', ev => {
+      const a = ev.target.closest('a[data-letter]');
+      if (!a) return;
+      ev.preventDefault();
+      const sec = [...root.querySelectorAll('.names-letter')].find(x => x.dataset.letter === a.dataset.letter);
+      // a short hop glides; a long one jumps (the list is tens of screens long)
+      if (sec) sec.scrollIntoView({ behavior: Math.abs(sec.getBoundingClientRect().top) > innerHeight * 3 ? 'auto' : 'smooth', block: 'start' });
+    });
+
+    const input = document.getElementById('names-q'), none = app.querySelector('.names-none');
+    function applyFilter() {
+      const needle = foldLat(input.value.trim()), needleHe = /[\u05D0-\u05EA]/.test(needle) ? foldHe(needle) : '';
+      let shown = 0, only = null;
+      root.querySelectorAll('.names-letter').forEach(sec => {
+        let any = false;
+        sec.querySelectorAll('.nm-sur').forEach(d => {
+          const ok = !needle || d.dataset.hay.includes(needle) || (needleHe && foldHe(d.dataset.hay).includes(needleHe));
+          d.hidden = !ok;
+          if (ok) { any = true; shown++; only = d; }
+        });
+        sec.hidden = !any;
+      });
+      none.hidden = shown > 0;
+      app.querySelector('.names-letters').hidden = !!needle;
+      if (shown === 1 && needle) only.open = true;       // a single match opens by itself
+    }
+    input.addEventListener('input', () => {
+      applyFilter();
+      const tools = app.querySelector('.names-tools');
+      if (tools.getBoundingClientRect().top <= (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 0) + 1)
+        root.scrollIntoView({ block: 'start' });   // the toolbar is stuck: show the matches from their start
+      const v = input.value.trim();
+      history.replaceState(null, '', `#/${lang}/names` + (v ? '/' + encodeURIComponent(v) : ''));
+    });
+    if (q) applyFilter();
+  }
+
   function aboutView() {
     currentIssueDate = null;
     app.innerHTML = `<div class="about">${T().aboutHtml}</div>`;
@@ -533,6 +718,7 @@
     const section = parts[0] || '';
     if (section === 'issue' && parts[1]) return issueView(parts[1], parts[2] || null);
     if (section === 'search') return searchView(parts[1] ? decodeURIComponent(parts.slice(1).join('/')) : '');
+    if (section === 'names') return namesView(parts[1] ? decodeURIComponent(parts.slice(1).join('/')) : '');
     if (section === 'about') return aboutView();
     return homeView();
   }
