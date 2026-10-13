@@ -739,6 +739,8 @@
     }
 
     const section = parts[0] || '';
+    // leaving the issue view forgets it, so that entering an issue (even the same one again) always opens at the top
+    if (section !== 'issue') lastShownIssue = null;
     if (section === 'issue' && parts[1]) return issueView(parts[1], parts[2] || null);
     if (section === 'search') return searchView(parts[1] ? decodeURIComponent(parts.slice(1).join('/')) : '');
     if (section === 'names') return namesView(parts[1] ? decodeURIComponent(parts.slice(1).join('/')) : '');
