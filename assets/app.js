@@ -759,6 +759,33 @@
     else if (location.hash === url) history.replaceState(null, '', base);
   }, true);
 
+  // opening / closing an item: the headline (and its marks) glide from their place in the
+  // list to the centred article heading and grow — or back — instead of jumping (FLIP:
+  // measure before the toggle, measure after it, then play the difference back to zero)
+  const reduceMotion = window.matchMedia ? matchMedia('(prefers-reduced-motion: reduce)') : { matches: true };
+  app.addEventListener('click', e => {
+    const sum = e.target.closest && e.target.closest('details.item > summary');
+    if (!sum || reduceMotion.matches || !sum.animate) return;
+    const det = sum.parentElement;
+    const first = [...sum.querySelectorAll('.title-he, .chips')].map(el => ({
+      el, r: el.getBoundingClientRect(), fs: parseFloat(getComputedStyle(el).fontSize)
+    }));
+    requestAnimationFrame(() => {      // by now the details element has toggled and laid out
+      first.forEach(({ el, r, fs }) => {
+        const n = el.getBoundingClientRect();
+        if (!n.width || !r.width) return;
+        const scale = el.classList.contains('title-he') ? fs / parseFloat(getComputedStyle(el).fontSize) : 1;
+        const rtl = getComputedStyle(el).direction === 'rtl';
+        const dx = rtl ? r.right - n.right : r.left - n.left;   // keep the start corner of the line
+        el.style.transformOrigin = rtl ? 'top right' : 'top left';
+        el.animate([{ transform: `translate(${dx}px, ${r.top - n.top}px) scale(${scale})` }, { transform: 'none' }],
+          { duration: 420, easing: 'cubic-bezier(.4,0,.2,1)' });
+      });
+      const body = det.open && det.querySelector(':scope > .item-body');
+      if (body) body.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 380, easing: 'ease-out' });
+    });
+  });
+
   /* ---------- in-page Yiddish editing popup ---------- */
   let yiModal = null;
   function ensureYiModal() {
