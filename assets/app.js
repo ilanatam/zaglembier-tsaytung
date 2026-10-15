@@ -888,7 +888,12 @@
       e.preventDefault();
       const hash = share.getAttribute('href');
       if (location.hash !== hash) history.replaceState(null, '', hash);
-      const url = location.origin + location.pathname + location.search + hash;
+      // in the published site, copy the item's share page (s/<lang>/<date>/<id>.html, built by tools/build-site.js):
+      // it carries the item's title in og tags for link previews (WhatsApp etc. ignore the #) and forwards to the item
+      const m = hash.match(/^#\/(\w+)\/issue\/([\d-]+)\/([\w.-]+)$/);
+      const dir = location.origin + location.pathname.replace(/[^/]*$/, '');
+      const url = (m && !IS_LOCAL) ? `${dir}s/${m[1]}/${m[2]}/${m[3]}.html`
+                                   : location.origin + location.pathname + location.search + hash;
       if (!share.dataset.orig) share.dataset.orig = share.textContent;
       const restore = () => { share.textContent = share.dataset.orig; };
       const flash = () => { share.textContent = T().linkCopied; setTimeout(restore, 1600); };
