@@ -50,7 +50,7 @@
       namesIntro: 'שמות האנשים הנזכרים בכתבות המתורגמות, לפי שם משפחה. לחיצה על שם משפחה פותחת את השמות הפרטיים, ולחיצה על שם פותחת את רשימת הכתבות שבהן הוא נזכר. האינדקס גדל עם הוספת גיליונות; אותו שם עשוי להופיע בכמה איותים.',
       namesFilter: 'סינון לפי שם משפחה…', namesNoGiven: '(ללא שם פרטי)',
       namesMentions: n => n === 1 ? 'כתבה אחת' : `${n} כתבות`, namesVariants: 'איותים נוספים:',
-      namesNone: 'לא נמצאו שמות.', namesLoading: 'טוען את אינדקס השמות…', namesEmpty: 'אינדקס השמות עדיין לא נבנה.',
+      namesNone: 'לא נמצאו שמות.', namesLoading: 'טוען את אינדקס השמות…', namesLoadingMore: 'עוד כמה שניות…', namesEmpty: 'אינדקס השמות עדיין לא נבנה.',
       namesSummary: (s, p) => `${s} שמות משפחה · ${p} שמות`,
       searchTitle: 'חיפוש', searchPrompt: 'הקלד/י מילה או שם כדי לחפש בכל הכתבות המתורגמות.',
       searchNoResults: 'לא נמצאו תוצאות עבור', searchResults: n => `${n} תוצאות`,
@@ -109,7 +109,7 @@
       namesIntro: 'The people named in the translated articles, by surname. Click a surname to see the given names, and a name to see the articles that mention it. The index grows as issues are added; the same name may appear in several spellings.',
       namesFilter: 'Filter by surname…', namesNoGiven: '(no given name)',
       namesMentions: n => n === 1 ? '1 article' : `${n} articles`, namesVariants: 'Other spellings:',
-      namesNone: 'No names found.', namesLoading: 'Loading the name index…', namesEmpty: 'The name index has not been built yet.',
+      namesNone: 'No names found.', namesLoading: 'Loading the name index…', namesLoadingMore: 'Just a few more seconds…', namesEmpty: 'The name index has not been built yet.',
       namesSummary: (s, p) => `${s} surnames · ${p} names`,
       searchTitle: 'Search', searchPrompt: 'Type a word or name to search all translated articles.',
       searchNoResults: 'No results for', searchResults: n => `${n} results`,
@@ -168,7 +168,7 @@
       namesIntro: 'Osoby wymienione w przetłumaczonych artykułach, według nazwisk. Kliknij nazwisko, aby zobaczyć imiona, a imię — aby zobaczyć artykuły, w których występuje. Indeks rośnie wraz z dodawaniem numerów; to samo nazwisko może występować w kilku pisowniach.',
       namesFilter: 'Filtruj według nazwiska…', namesNoGiven: '(bez imienia)',
       namesMentions: n => n === 1 ? '1 artykuł' : `${n} art.`, namesVariants: 'Inne pisownie:',
-      namesNone: 'Nie znaleziono nazwisk.', namesLoading: 'Wczytywanie indeksu nazwisk…', namesEmpty: 'Indeks nazwisk nie został jeszcze utworzony.',
+      namesNone: 'Nie znaleziono nazwisk.', namesLoading: 'Wczytywanie indeksu nazwisk…', namesLoadingMore: 'Jeszcze kilka sekund…', namesEmpty: 'Indeks nazwisk nie został jeszcze utworzony.',
       namesSummary: (s, p) => `${s} nazwisk · ${p} osób`,
       searchTitle: 'Szukaj', searchPrompt: 'Wpisz słowo lub nazwisko, aby przeszukać wszystkie przetłumaczone artykuły.',
       searchNoResults: 'Brak wyników dla', searchResults: n => `${n} wyników`,
@@ -322,14 +322,14 @@
     return contentCache[date];
   }
 
-  let allContentCache = null;
-  async function loadAllContent() {
-    if (allContentCache) return allContentCache;
-    await loadDB();
-    const dated = DB.issues.filter(it => it.hasContent);
-    const results = await Promise.all(dated.map(it => loadContent(it.date)));
-    allContentCache = results.filter(Boolean);
-    return allContentCache;
+  // the search reads compact text files built by tools/build-site.js — one per language and year, rows of
+  // [date, id, page, title, text] — instead of every full issue file of the archive at once (too much for a phone)
+  const searchCache = {};
+  function loadSearchYear(year) {
+    const k = lang + '-' + year;
+    if (!(k in searchCache))
+      searchCache[k] = fetch(`data/search/${k}.json`, {cache: 'no-cache'}).then(r => r.ok ? r.json() : []).catch(() => []);
+    return searchCache[k];
   }
 
   /* ---------- views ---------- */
@@ -525,8 +525,11 @@
 
   async function namesView(q) {
     currentIssueDate = null;
-    app.innerHTML = `<h1>${T().namesTitle}</h1><p class="loading">${T().namesLoading}</p>`;
+    app.innerHTML = `<h1>${T().namesTitle}</h1><div class="loading-box"><span class="spinner" aria-hidden="true"></span><p class="loading">${T().namesLoading}</p><p class="loading loading-more" hidden>${T().namesLoadingMore}</p></div>`;
+    // the index file is large: if it is still on its way after a few seconds, say that it is nearly there
+    const moreTimer = setTimeout(() => { const m = app.querySelector('.loading-more'); if (m) m.hidden = false; }, 3500);
     const db = await loadNames();
+    clearTimeout(moreTimer);
     if (!db.surnames.length) { app.innerHTML = `<h1>${T().namesTitle}</h1><p class="search-hint">${T().namesEmpty}</p>`; return; }
     const he = lang === 'he';
     // primary script follows the interface language: Hebrew letters in Hebrew, Latin otherwise
@@ -703,35 +706,37 @@
       app.querySelector('.loading').outerHTML = `<p class="search-hint">${T().searchPrompt}</p>`;
       return;
     }
-    const all = await loadAllContent();
-    const query = q.trim();
-    const hits = [];
-    for (const issue of all) {
-      for (const it of issue.items) {
-        const title = itemField(it, 'title') || '';
-        const text = itemField(it, 'text') || '';
-        const hay = (title + '\n' + text);
-        if (hay.toLowerCase().includes(query.toLowerCase())) {
-          hits.push({ issue, it, title, snippet: highlight(text || title, query) });
-        }
+    const query = q.trim(), ql = query.toLowerCase();
+    const token = ++searchToken;
+    // the years are read in order and their hits shown as soon as each year is in; the loading line stays until the last
+    const loading = app.querySelector('.loading');
+    loading.insertAdjacentHTML('beforebegin', `<p class="search-count" hidden></p><div class="search-hits"></div>`);
+    const count = app.querySelector('.search-count'), list = app.querySelector('.search-hits');
+    const years = [...new Set(DB.issues.filter(it => it.hasContent).map(it => it.date.slice(0, 4)))];
+    const pending = years.map(loadSearchYear);   // all requested up front; the browser fetches a few at a time
+    let n = 0;
+    for (const p of pending) {
+      const rows = await p;
+      if (token !== searchToken) return;           // a newer search has replaced this one
+      let html = '';
+      for (const [date, id, page, title, text] of rows) {
+        if (!(title + '\n' + text).toLowerCase().includes(ql)) continue;
+        n++;
+        html += `<a class="search-hit" href="#/${lang}/issue/${date}/${esc(id)}">
+          <div class="sh-title">${esc(title || T().untranslated)}</div>
+          <div class="sh-meta">${T().searchIn} ${fmtDate(date)} · ${T().pageWord} ${page}</div>
+          <div class="sh-snippet">${highlight(text || title, query)}</div></a>`;
+      }
+      if (html) {
+        list.insertAdjacentHTML('beforeend', html);
+        count.textContent = T().searchResults(n);
+        count.hidden = false;
       }
     }
-    let html = `<h1>${T().searchTitle}</h1>${box}`;
-    if (!hits.length) {
-      html += `<p class="search-hint">${T().searchNoResults} "${esc(query)}".</p>`;
-    } else {
-      html += `<p class="search-count">${T().searchResults(hits.length)}</p>`;
-      for (const h of hits) {
-        const t = h.title || T().untranslated;
-        html += `<a class="search-hit" href="#/${lang}/issue/${h.issue.date}/${esc(h.it.id)}">
-          <div class="sh-title">${esc(t)}</div>
-          <div class="sh-meta">${T().searchIn} ${fmtDate(h.issue.date)} · ${T().pageWord} ${h.it.page}</div>
-          <div class="sh-snippet">${h.snippet}</div></a>`;
-      }
-    }
-    app.innerHTML = html;
-    wireSearchInput();
+    if (n) loading.remove();
+    else loading.outerHTML = `<p class="search-hint">${T().searchNoResults} "${esc(query)}".</p>`;
   }
+  let searchToken = 0;
 
   function wireSearchInput() {
     const inp = document.getElementById('q');
