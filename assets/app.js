@@ -544,21 +544,18 @@
       .sort((a, b) => coll.compare(a.L, b.L) || coll.compare(a.p, b.p));
     const nPeople = db.surnames.reduce((n, e) => n + e.people.length, 0);
     const letters = [];
-    let body = '', cur = null;
+    // search keys are folded once here, not on every keystroke
     for (const x of list) {
-      const L = x.L;
-      if (L !== cur) {
-        if (cur !== null) body += '</div></section>';
-        cur = L; letters.push(L);
-        body += `<section class="names-letter" data-letter="${esc(L)}"><h2 class="names-letter-head" id="nm-${esc(L)}">${esc(L)}</h2><div class="nm-list">`;
-      }
+      if (letters[letters.length - 1] !== x.L) letters.push(x.L);
+      x.hay = foldLat([x.e.he, x.e.lat, ...(x.e.vars || [])].join(' '));
+      x.hayHe = /[א-ת]/.test(x.hay) ? foldHe(x.hay) : '';
+    }
+    const rowHtml = x => {
       const e = x.e, n = new Set(e.people.flatMap(p => p.refs.map(r => r[0] + '|' + r[1]))).size;
-      const hay = foldLat([e.he, e.lat, ...(e.vars || [])].join(' '));
-      body += `<details class="nm-sur" data-i="${x.i}" data-hay="${esc(hay)}">
+      return `<details class="nm-sur" data-i="${x.i}">
         <summary><span class="nm-name">${esc(x.p)}</span>${alt(e) ? ` <span class="nm-alt" dir="auto">${esc(alt(e))}</span>` : ''}<span class="nm-count">${n}</span></summary>
         <div class="nm-body"></div></details>`;
-    }
-    if (cur !== null) body += '</div></section>';
+    };
     app.innerHTML = `<h1>${T().namesTitle}</h1>
       <p class="names-intro">${T().namesIntro}</p>
       <p class="names-summary">${T().namesSummary(db.surnames.length, nPeople)}</p>
@@ -567,9 +564,37 @@
         <nav class="names-letters">${letters.map(L => `<a href="#nm-${esc(L)}" data-letter="${esc(L)}">${esc(L)}</a>`).join('')}</nav>
       </div>
       <p class="search-hint names-none" hidden>${T().namesNone}</p>
-      <div class="names-index">${body}</div>`;
+      <div class="names-index"></div>`;
 
     const root = app.querySelector('.names-index');
+    // the index runs to thousands of surnames, too many to put on a phone's page at once: every letter gets an
+    // empty section of about the right height, and its rows are built only when the section nears the screen
+    let io = null;
+    function renderIndex(entries) {
+      if (io) io.disconnect();
+      const groups = new Map();
+      for (const x of entries) { if (!groups.has(x.L)) groups.set(x.L, []); groups.get(x.L).push(x); }
+      let h = '';
+      groups.forEach((xs, L) => {
+        h += `<section class="names-letter" data-letter="${esc(L)}"><h2 class="names-letter-head" id="nm-${esc(L)}">${esc(L)}</h2><div class="nm-list" style="min-height:calc(${xs.length} * 2.35rem)"></div></section>`;
+      });
+      root.innerHTML = h;
+      io = 'IntersectionObserver' in window
+        ? new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) fillSection(en.target); }), { rootMargin: '1500px 0px' })
+        : null;
+      root.querySelectorAll('.names-letter').forEach(sec => {
+        sec._rows = groups.get(sec.dataset.letter);
+        if (io) io.observe(sec); else fillSection(sec);
+      });
+    }
+    function fillSection(sec) {
+      if (!sec || !sec._rows) return;
+      const box = sec.querySelector('.nm-list');
+      box.innerHTML = sec._rows.map(rowHtml).join('');
+      box.style.minHeight = '';
+      sec._rows = null;
+      if (io) io.unobserve(sec);
+    }
     const personLabel = p => (he ? p.he || p.lat : p.lat || p.he) || T().namesNoGiven;
     const personAlt = p => (he ? (p.he ? p.lat : '') : (p.lat ? p.he : '')) || '';
     function fillSurname(d) {
@@ -614,6 +639,7 @@
       if (!a) return;
       ev.preventDefault();
       const sec = [...root.querySelectorAll('.names-letter')].find(x => x.dataset.letter === a.dataset.letter);
+      fillSection(sec);
       // a short hop glides; a long one jumps (the list is tens of screens long)
       if (sec) sec.scrollIntoView({ behavior: Math.abs(sec.getBoundingClientRect().top) > innerHeight * 3 ? 'auto' : 'smooth', block: 'start' });
     });
@@ -621,21 +647,23 @@
     const input = document.getElementById('names-q'), none = app.querySelector('.names-none');
     function applyFilter() {
       const needle = foldLat(input.value.trim()), needleHe = /[\u05D0-\u05EA]/.test(needle) ? foldHe(needle) : '';
-      let shown = 0, only = null;
-      root.querySelectorAll('.names-letter').forEach(sec => {
-        let any = false;
-        sec.querySelectorAll('.nm-sur').forEach(d => {
-          const ok = !needle || d.dataset.hay.includes(needle) || (needleHe && foldHe(d.dataset.hay).includes(needleHe));
-          d.hidden = !ok;
-          if (ok) { any = true; shown++; only = d; }
-        });
-        sec.hidden = !any;
-      });
-      none.hidden = shown > 0;
+      const hits = needle ? list.filter(x => x.hay.includes(needle) || (needleHe && x.hayHe.includes(needleHe))) : list;
+      renderIndex(hits);
+      none.hidden = hits.length > 0;
       app.querySelector('.names-letters').hidden = !!needle;
-      if (shown === 1 && needle) only.open = true;       // a single match opens by itself
+      if (hits.length === 1 && needle) {                  // a single match opens by itself
+        const sec = root.querySelector('.names-letter');
+        fillSection(sec);
+        sec.querySelector('.nm-sur').open = true;
+      }
     }
     input.addEventListener('input', () => {
+      // rebuilding the list waits for a short pause in typing (a phone keyboard fires fast)
+      clearTimeout(input._filterTimer);
+      input._filterTimer = setTimeout(afterInput, 150);
+    });
+    function afterInput() {
+      if (!document.body.contains(input)) return;
       applyFilter();
       const tools = app.querySelector('.names-tools');
       if (tools.getBoundingClientRect().top <= (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 0) + 1)
@@ -647,8 +675,8 @@
         const v = input.value.trim();
         history.replaceState(null, '', `#/${lang}/names` + (v ? '/' + encodeURIComponent(v) : ''));
       }, 900);
-    });
-    if (q) applyFilter();
+    }
+    if (q) applyFilter(); else renderIndex(list);
   }
 
   function aboutView() {
@@ -720,6 +748,14 @@
     });
   }
 
+  // Google Analytics reads only the page's path and drops everything after "#", where all of this site's views
+  // live — so each view is reported as a page_view of its own, with the "#/…" part turned into a path
+  function trackView() {
+    if (typeof window.gtag !== 'function') return;   // not loaded when working on the site locally
+    const path = location.pathname + (location.hash || '#/').replace(/^#\/?/, '');
+    window.gtag('event', 'page_view', { page_location: location.origin + path, page_path: path, page_title: document.title });
+  }
+
   async function route() {
     await loadDB();
     let parts = (location.hash || '#/').replace(/^#\/?/, '').split('/');
@@ -737,6 +773,7 @@
       const rest = parts.filter(Boolean).join('/');
       history.replaceState(null, '', '#/' + lang + (rest ? '/' + rest : '/'));
     }
+    trackView();
 
     const section = parts[0] || '';
     // leaving the issue view forgets it, so that entering an issue (even the same one again) always opens at the top
