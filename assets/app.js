@@ -46,6 +46,8 @@
       navSearch: 'חיפוש', searchPlaceholder: 'חיפוש בכל התרגומים…',
       toTop: 'חזרה לראש העמוד',
       yearsNav: 'ניווט לפי שנים', yearTranslated: n => `${n} מתורגמים`, yearTitle: (y, n) => `${y}: ${n} גיליונות מתורגמים`,
+      navKeywords: 'מילות מפתח', keywordsTitle: 'מילות מפתח',
+      keywordsIntro: 'מקומות, אישים ונושאים שחוזרים בעיתון. לחיצה על מילה פותחת חיפוש שלה בכל הכתבות המתורגמות; המספר הוא מספר הכתבות שבהן היא מופיעה.',
       navNames: 'אינדקס שמות', namesTitle: 'אינדקס שמות',
       namesIntro: 'שמות האנשים הנזכרים בכתבות המתורגמות, לפי שם משפחה. לחיצה על שם משפחה פותחת את השמות הפרטיים, ולחיצה על שם פותחת את רשימת הכתבות שבהן הוא נזכר. האינדקס גדל עם הוספת גיליונות; אותו שם עשוי להופיע בכמה איותים.',
       namesFilter: 'סינון לפי שם משפחה…', namesNoGiven: '(ללא שם פרטי)',
@@ -105,6 +107,8 @@
       navSearch: 'Search', searchPlaceholder: 'Search all translations…',
       toTop: 'Back to top',
       yearsNav: 'Jump to a year', yearTranslated: n => `${n} translated`, yearTitle: (y, n) => `${y}: ${n} translated issues`,
+      navKeywords: 'Keywords', keywordsTitle: 'Keywords',
+      keywordsIntro: 'Places, people and topics that recur in the paper. Click a word to search for it in all the translated articles; the number is how many articles it appears in.',
       navNames: 'Name index', namesTitle: 'Index of names',
       namesIntro: 'The people named in the translated articles, by surname. Click a surname to see the given names, and a name to see the articles that mention it. The index grows as issues are added; the same name may appear in several spellings.',
       namesFilter: 'Filter by surname…', namesNoGiven: '(no given name)',
@@ -164,6 +168,8 @@
       navSearch: 'Szukaj', searchPlaceholder: 'Przeszukaj wszystkie tłumaczenia…',
       toTop: 'Do góry strony',
       yearsNav: 'Przejdź do roku', yearTranslated: n => `${n} przetłum.`, yearTitle: (y, n) => `${y}: przetłumaczone numery — ${n}`,
+      navKeywords: 'Słowa kluczowe', keywordsTitle: 'Słowa kluczowe',
+      keywordsIntro: 'Miejsca, postaci i tematy powracające w gazecie. Kliknij słowo, aby wyszukać je we wszystkich przetłumaczonych artykułach; liczba oznacza, w ilu artykułach występuje.',
       navNames: 'Indeks nazwisk', namesTitle: 'Indeks nazwisk',
       namesIntro: 'Osoby wymienione w przetłumaczonych artykułach, według nazwisk. Kliknij nazwisko, aby zobaczyć imiona, a imię — aby zobaczyć artykuły, w których występuje. Indeks rośnie wraz z dodawaniem numerów; to samo nazwisko może występować w kilku pisowniach.',
       namesFilter: 'Filtruj według nazwiska…', namesNoGiven: '(bez imienia)',
@@ -260,6 +266,7 @@
     setNav('nav-about', T().navAbout, `#/${lang}/about`);
     setNav('nav-search', T().navSearch, `#/${lang}/search`);
     setNav('nav-names', T().navNames, `#/${lang}/names`);
+    setNav('nav-keywords', T().navKeywords, `#/${lang}/keywords`);
     const brand = document.querySelector('a.brand');
     if (brand) brand.setAttribute('href', `#/${lang}/`);
     document.getElementById('site-footer-text').innerHTML = T().footer;
@@ -687,14 +694,30 @@
     app.innerHTML = `<div class="about">${T().aboutHtml}</div>`;
   }
 
-  function highlight(text, q) {
-    const i = text.toLowerCase().indexOf(q.toLowerCase());
-    if (i < 0) return esc(text.slice(0, 160)) + (text.length > 160 ? String.fromCharCode(8230) : "");
+  // the search ignores case, and lets ' ׳ ’, " ״ “ ”, and space / hyphen / maqaf stand for one another
+  // (צ'לאדז' = צ׳לאדז׳, ארץ-ישראל = ארץ ישראל). tools/build-site.js counts the keyword index with the same pattern
+  const SEARCH_VARIANTS = { "'": "['׳’]", '׳': "['׳’]", '’': "['׳’]", '"': '["״“”„]', '״': '["״“”„]', ' ': '[\\s\\-־–]', '-': '[\\s\\-־–]', '־': '[\\s\\-־–]' };
+  const searchPattern = q => new RegExp([...q].map(c => SEARCH_VARIANTS[c] || c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join(''), 'iu');
+
+  function highlight(text, re) {
+    const m = re.exec(text);
+    if (!m) return esc(text.slice(0, 160)) + (text.length > 160 ? String.fromCharCode(8230) : "");
+    const i = m.index, len = m[0].length;
     const start = Math.max(0, i - 60);
     const before = (start > 0 ? String.fromCharCode(8230) : "") + text.slice(start, i);
-    const match = text.slice(i, i + q.length);
-    const after = text.slice(i + q.length, i + q.length + 90) + String.fromCharCode(8230);
+    const match = text.slice(i, i + len);
+    const after = text.slice(i + len, i + len + 90) + String.fromCharCode(8230);
     return esc(before) + "<mark>" + esc(match) + "</mark>" + esc(after);
+  }
+
+  /* ---------- keyword index: every word is a link to the search ---------- */
+  async function keywordsView() {
+    currentIssueDate = null;
+    const r = await fetch(`data/keywords-${lang}.json`, {cache: 'no-cache'}).catch(() => null);
+    const groups = r && r.ok ? await r.json() : [];
+    app.innerHTML = `<h1>${T().keywordsTitle}</h1><p class="names-intro">${T().keywordsIntro}</p>` +
+      groups.map(([title, words]) => `<h2 class="kw-head">${esc(title)}</h2><p class="kw-list">${words.map(([label, q, n]) =>
+        `<a href="#/${lang}/search/${encodeURIComponent(q || label)}">${esc(label)}<span class="kw-n">${n}</span></a>`).join('')}</p>`).join('');
   }
 
   async function searchView(q) {
@@ -706,7 +729,7 @@
       app.querySelector('.loading').outerHTML = `<p class="search-hint">${T().searchPrompt}</p>`;
       return;
     }
-    const query = q.trim(), ql = query.toLowerCase();
+    const query = q.trim(), re = searchPattern(query);
     const token = ++searchToken;
     // the years are read in order and their hits shown as soon as each year is in; the loading line stays until the last
     const loading = app.querySelector('.loading');
@@ -720,12 +743,12 @@
       if (token !== searchToken) return;           // a newer search has replaced this one
       let html = '';
       for (const [date, id, page, title, text] of rows) {
-        if (!(title + '\n' + text).toLowerCase().includes(ql)) continue;
+        if (!re.test(title + '\n' + text)) continue;
         n++;
         html += `<a class="search-hit" href="#/${lang}/issue/${date}/${esc(id)}">
           <div class="sh-title">${esc(title || T().untranslated)}</div>
           <div class="sh-meta">${T().searchIn} ${fmtDate(date)} · ${T().pageWord} ${page}</div>
-          <div class="sh-snippet">${highlight(text || title, query)}</div></a>`;
+          <div class="sh-snippet">${highlight(text || title, re)}</div></a>`;
       }
       if (html) {
         list.insertAdjacentHTML('beforeend', html);
@@ -785,6 +808,7 @@
     if (section !== 'issue') lastShownIssue = null;
     if (section === 'issue' && parts[1]) return issueView(parts[1], parts[2] || null);
     if (section === 'search') return searchView(parts[1] ? decodeURIComponent(parts.slice(1).join('/')) : '');
+    if (section === 'keywords') return keywordsView();
     if (section === 'names') return namesView(parts[1] ? decodeURIComponent(parts.slice(1).join('/')) : '');
     if (section === 'about') return aboutView();
     return homeView();

@@ -649,3 +649,14 @@ h1 + .search-box { margin-top: 0; }
   .nav-bar, .names-tools { position: static; }
   body::before, body::after { display: none; }
 }
+
+/* keyword index: each word is a link to the search, set as a run of small tags */
+.kw-head { font-size: 1.25rem; margin: 1.4rem 0 .5rem; }
+.kw-list { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; }
+.kw-list a {
+  display: inline-flex; align-items: baseline; gap: .4rem;
+  padding: .18rem .6rem; border: 1px solid var(--line); background: var(--paper);
+  color: var(--ink); font-weight: 500;
+}
+.kw-list a:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+.kw-n { color: var(--muted); font-size: .78rem; font-variant-numeric: tabular-nums; }
