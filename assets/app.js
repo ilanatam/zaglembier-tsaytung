@@ -819,17 +819,36 @@
   // the search ignores case, and lets ' ׳ ’, " ״ “ ”, and space / hyphen / maqaf stand for one another
   // (צ'לאדז' = צ׳לאדז׳, ארץ-ישראל = ארץ ישראל). tools/build-site.js counts the keyword index with the same pattern
   const SEARCH_VARIANTS = { "'": "['׳’]", '׳': "['׳’]", '’': "['׳’]", '"': '["״“”„]', '״': '["״“”„]', ' ': '[\\s\\-־–]', '-': '[\\s\\-־–]', '־': '[\\s\\-־–]' };
-  const searchPattern = q => new RegExp([...q].map(c => SEARCH_VARIANTS[c] || c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join(''), 'iu');
+  // in a Hebrew word of 3+ letters an extra ו / י may sit between any two letters, so defective spelling finds
+  // plene spelling (קולנטאי → קולונטאי, הכח → הכוח)
+  const HEB_LETTER = /[א-ת]/;
+  const termPattern = t => {
+    const cs = [...t], loose = cs.filter(c => HEB_LETTER.test(c)).length >= 3;
+    return cs.map((c, i) => (loose && i && HEB_LETTER.test(c) && HEB_LETTER.test(cs[i - 1]) ? '[וי]{0,2}' : '') +
+      (SEARCH_VARIANTS[c] || c.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))).join('');
+  };
+  const searchPattern = q => new RegExp(termPattern(q), 'iu');
+  // several words = all of them must appear in the article, in any order and at any distance;
+  // a query wrapped in straight or curly quotes ("ארץ ישראל") is searched as one exact phrase
+  function searchTerms(q) {
+    const ph = q.match(/^["“„](.+)["”]$/);
+    if (ph) return [searchPattern(ph[1].trim())];
+    const words = q.split(/\s+/).filter(w => [...w].length >= 2);
+    return (words.length ? words : [q]).map(searchPattern);
+  }
 
-  function highlight(text, re) {
-    const m = re.exec(text);
-    if (!m) return esc(text.slice(0, 160)) + (text.length > 160 ? String.fromCharCode(8230) : "");
-    const i = m.index, len = m[0].length;
-    const start = Math.max(0, i - 60);
-    const before = (start > 0 ? String.fromCharCode(8230) : "") + text.slice(start, i);
-    const match = text.slice(i, i + len);
-    const after = text.slice(i + len, i + len + 90) + String.fromCharCode(8230);
-    return esc(before) + "<mark>" + esc(match) + "</mark>" + esc(after);
+  // the snippet shows the first hit of each word (windows that overlap are joined) with every word marked
+  function highlight(text, res) {
+    const ell = String.fromCharCode(8230);
+    const wins = [];
+    for (const r of res) { const m = r.exec(text); if (m) wins.push([Math.max(0, m.index - 60), Math.min(text.length, m.index + m[0].length + 90)]); }
+    if (!wins.length) return esc(text.slice(0, 160)) + (text.length > 160 ? ell : '');
+    wins.sort((a, b) => a[0] - b[0]);
+    const merged = [wins[0]];
+    for (const w of wins.slice(1)) { const last = merged[merged.length - 1]; if (w[0] <= last[1]) last[1] = Math.max(last[1], w[1]); else merged.push(w); }
+    const all = new RegExp(res.map(r => '(?:' + r.source + ')').join('|'), 'giu');
+    const mark = s => { let out = '', at = 0; for (const m of s.matchAll(all)) { if (!m[0]) continue; out += esc(s.slice(at, m.index)) + '<mark>' + esc(m[0]) + '</mark>'; at = m.index + m[0].length; } return out + esc(s.slice(at)); };
+    return merged.map(([a, b], k) => (a > 0 || k ? ell : '') + mark(text.slice(a, b))).join(' ') + (merged[merged.length - 1][1] < text.length ? ell : '');
   }
 
   /* ---------- keyword index: every word is a link to the search ---------- */
@@ -851,7 +870,7 @@
       app.querySelector('.loading').outerHTML = `<p class="search-hint">${T().searchPrompt}</p>`;
       return;
     }
-    const query = q.trim(), re = searchPattern(query);
+    const query = q.trim(), res = searchTerms(query);
     const token = ++searchToken;
     // the years are read in order and their hits shown as soon as each year is in; the loading line stays until the last
     const loading = app.querySelector('.loading');
@@ -865,12 +884,13 @@
       if (token !== searchToken) return;           // a newer search has replaced this one
       let html = '';
       for (const [date, id, page, title, text] of rows) {
-        if (!re.test(title + '\n' + text)) continue;
+        const full = title + '\n' + text;
+        if (!res.every(r => r.test(full))) continue;
         n++;
         html += `<a class="search-hit" href="#/${lang}/issue/${date}/${esc(id)}">
           <div class="sh-title">${esc(title || T().untranslated)}</div>
           <div class="sh-meta">${T().searchIn} ${fmtDate(date)} · ${T().pageWord} ${page}</div>
-          <div class="sh-snippet">${highlight(text || title, re)}</div></a>`;
+          <div class="sh-snippet">${highlight(text || title, res)}</div></a>`;
       }
       if (html) {
         list.insertAdjacentHTML('beforeend', html);
