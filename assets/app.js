@@ -50,7 +50,7 @@
       keywordsIntro: 'מקומות, אישים ונושאים שחוזרים בעיתון. לחיצה על מילה פותחת חיפוש שלה בכל הכתבות המתורגמות; המספר הוא מספר הכתבות שבהן היא מופיעה.',
       navNames: 'אינדקס שמות', namesTitle: 'אינדקס שמות',
       namesIntro: 'שמות האנשים הנזכרים בכתבות המתורגמות, לפי שם משפחה. לחיצה על שם משפחה פותחת את השמות הפרטיים, ולחיצה על שם פותחת את רשימת הכתבות שבהן הוא נזכר. האינדקס גדל עם הוספת גיליונות; אותו שם עשוי להופיע בכמה איותים.',
-      namesFilter: 'סינון לפי שם משפחה…', namesNoGiven: '(ללא שם פרטי)',
+      namesFilter: 'חיפוש לפי שם משפחה ושם פרטי…', namesNoGiven: '(ללא שם פרטי)',
       namesMentions: n => n === 1 ? 'כתבה אחת' : `${n} כתבות`, namesVariants: 'איותים נוספים:',
       namesNone: 'לא נמצאו שמות.', namesLoading: 'טוען את אינדקס השמות…', namesLoadingMore: 'עוד כמה שניות…', namesEmpty: 'אינדקס השמות עדיין לא נבנה.',
       namesSummary: (s, p) => `${s} שמות משפחה · ${p} שמות`,
@@ -111,7 +111,7 @@
       keywordsIntro: 'Places, people and topics that recur in the paper. Click a word to search for it in all the translated articles; the number is how many articles it appears in.',
       navNames: 'Name index', namesTitle: 'Index of names',
       namesIntro: 'The people named in the translated articles, by surname. Click a surname to see the given names, and a name to see the articles that mention it. The index grows as issues are added; the same name may appear in several spellings.',
-      namesFilter: 'Filter by surname…', namesNoGiven: '(no given name)',
+      namesFilter: 'Search by surname and given name…', namesNoGiven: '(no given name)',
       namesMentions: n => n === 1 ? '1 article' : `${n} articles`, namesVariants: 'Other spellings:',
       namesNone: 'No names found.', namesLoading: 'Loading the name index…', namesLoadingMore: 'Just a few more seconds…', namesEmpty: 'The name index has not been built yet.',
       namesSummary: (s, p) => `${s} surnames · ${p} names`,
@@ -172,7 +172,7 @@
       keywordsIntro: 'Miejsca, postaci i tematy powracające w gazecie. Kliknij słowo, aby wyszukać je we wszystkich przetłumaczonych artykułach; liczba oznacza, w ilu artykułach występuje.',
       navNames: 'Indeks nazwisk', namesTitle: 'Indeks nazwisk',
       namesIntro: 'Osoby wymienione w przetłumaczonych artykułach, według nazwisk. Kliknij nazwisko, aby zobaczyć imiona, a imię — aby zobaczyć artykuły, w których występuje. Indeks rośnie wraz z dodawaniem numerów; to samo nazwisko może występować w kilku pisowniach.',
-      namesFilter: 'Filtruj według nazwiska…', namesNoGiven: '(bez imienia)',
+      namesFilter: 'Szukaj według nazwiska i imienia…', namesNoGiven: '(bez imienia)',
       namesMentions: n => n === 1 ? '1 artykuł' : `${n} art.`, namesVariants: 'Inne pisownie:',
       namesNone: 'Nie znaleziono nazwisk.', namesLoading: 'Wczytywanie indeksu nazwisk…', namesLoadingMore: 'Jeszcze kilka sekund…', namesEmpty: 'Indeks nazwisk nie został jeszcze utworzony.',
       namesSummary: (s, p) => `${s} nazwisk · ${p} osób`,
@@ -530,6 +530,85 @@
   const foldHe = s => (s || '').replace(/[\u0591-\u05C7]/g, '').replace(/\u05F2/g, 'יי').replace(/\u05F0/g, 'וו').replace(/\u05F1/g, 'וי')
     .replace(/[ךםןףץ]/g, c => HE_FINALS[c]).replace(/(?<=[\u05D0-\u05EA])[אע]/g, '').replace(/ו+/g, 'ו').replace(/י+/g, 'י');
 
+  // name search works word by word, in any order ("Salomon Gutman" = "Gutman Salomon"), and lets close spellings
+  // meet: every word becomes a sound key — 'l:' + Latin (sz=sh=s, cz=c, w=v, j=y=i, double letters single:
+  // Guttmann = Gutman) or 'h:' + Hebrew consonants (ת=ט, ק=כ) — and keys a letter or two apart still match
+  const LAT_SOUNDS = { sh: 's', ch: 'h', sz: 's', cz: 'c', rz: 'z', kh: 'h', ph: 'f', tz: 'c', ts: 'c', ck: 'k', x: 'ks', q: 'k', w: 'v', y: 'i', j: 'i' };
+  const phonLat = s => foldLat(s).replace(/[^a-z]/g, '').replace(/tsch/g, 'c').replace(/szcz/g, 'sc').replace(/sch/g, 's')
+    .replace(/[sc]h|sz|cz|rz|kh|ph|tz|ts|ck|x|q|w|y|j/g, m => LAT_SOUNDS[m]).replace(/(.)\1+/g, '$1');
+  const wordKey = w => /[א-ת]/.test(w)
+    ? 'h:' + foldHe(w).replace(/[^א-ת]/g, '').replace(/ת/g, 'ט').replace(/ק/g, 'כ')
+    : 'l:' + phonLat(w);
+  const nameKeys = s => (s || '').split(/[\s\-–־()\/,.;:"'״׳’]+/).filter(Boolean).map(wordKey).filter(k => k.length > 2);
+  // given names spelled quite differently that are the same name (Polish / Yiddish / Hebrew forms)
+  const NAME_GROUPS = [
+    'Salomon Solomon Szlama Szlame Szlojme Szlomo Szloma Shlomo Schlomo Zalman Zalmen שלמה שלומה סלומון זלמן',
+    'Abraham Abram Awram Avraham Abrum Abrom אברהם אברם אברום',
+    'Icchak Icek Iciek Icze Iczek Izaak Isaak Isaac Yitzhak Itzhak Itshe Itshke יצחק איצק איציק איצה איטשע איטשקע',
+    'Mosze Moszek Mosiek Mojzesz Moses Moshe Mojsze משה מושה מוישע מוישה',
+    'Jakub Jakob Jakow Jankiel Jankel Jacob Yaakov Jaakow יעקב יענקל יאנקל',
+    'Józef Josef Joseph Josek Josel Yosef יוסף יוסל',
+    'Dawid David Dovid דוד',
+    'Chaim Haim Hyman חיים',
+    'Lejb Leib Lejbus Leibusz Lejbusz Leon Arie Arje Aryeh לייב ליב לייבוש אריה',
+    'Herszel Hersz Hirsz Hirsch Hirszel Herschel Hersch Cwi Zwi Tzvi Zvi צבי הירש הירשל הערשל הערש',
+    'Menachem Mendel Mendl מנחם מנדל',
+    'Izrael Israel Srul Srol Yisrael ישראל סרול',
+    'Sara Sura Sure Sarah שרה סורה',
+    'Rywka Ryfka Rivka Rebeka Rebecca Rifka רבקה ריבקה',
+    'Chana Hana Hanna Hannah Chane חנה',
+    'Ruchla Rachel Rochla Rachela Ruchel Rochel רחל רוחלה',
+    'Estera Ester Esther אסתר',
+    'Naftali Naftula Naftule נפתלי',
+    'Szmul Samuel Szmuel Shmuel Schmuel שמואל שמול',
+    'Wolf Welwel Wulf Zew Zeew Zeev Volf זאב וולף וועלוול',
+    'Benjamin Beniamin Binyamin Binem Bunem בנימין בונם',
+    'Eliasz Elias Eliyahu Elijahu Elja Eliahu אליהו אליה',
+    'Pinkus Pinchas Pinkas Pinches פנחס פינקוס',
+    'Majer Meir Mayer Meyer Mejer מאיר מייער',
+    'Aron Aaron Aharon אהרן אהרון',
+    'Berek Ber Baer Dov Dow בער דב בערק',
+    'Mordka Mordechaj Mordechai Mordche Motel Motek Mordko מרדכי מאטל מוטל',
+    'Gerszon Gershon Gerson Gierszon גרשון',
+    'Nuchim Nachum Nochem Nuchem נחום',
+    'Szymon Simon Shimon שמעון',
+    'Zelig Selig Zelik Zelek זליג זעליג',
+    'Henoch Hanoch Chanoch Henech חנוך העניך',
+    'Golda Gołda Golde גולדה',
+    'Miriam Mirla Mirel Mirjam מרים מירל',
+    'Fajwel Fajwisz Feivel Szraga פייוול שרגא',
+    'Natan Nusen Nuta Nathan נתן נוטע',
+    'Jehuda Juda Judka Yehuda Idel Judel יהודה אידל יודל',
+    'Efraim Ephraim Froim אפרים פרוים',
+  ].map(g => g.split(' '));
+  const NAME_GROUP = new Map();
+  NAME_GROUPS.forEach((g, gi) => g.forEach(w => { const k = wordKey(w); if (!NAME_GROUP.has(k)) NAME_GROUP.set(k, gi); }));
+  function lev(a, b, max) {              // edit distance, given up as soon as it must exceed max
+    let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+    for (let i = 1; i <= a.length; i++) {
+      const cur = [i]; let low = i;
+      for (let j = 1; j <= b.length; j++) {
+        cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+        if (cur[j] < low) low = cur[j];
+      }
+      if (low > max) return max + 1;
+      prev = cur;
+    }
+    return prev[b.length];
+  }
+  // how well one search word fits one name word: 3 the same (or the same name), 2 its start, 1 a close spelling
+  function wordScore(q, k, minPrefix) {
+    if (q[0] !== k[0]) return 0;                          // Latin is compared with Latin, Hebrew with Hebrew
+    if (q === k) return 3;
+    const g = NAME_GROUP.get(q);
+    if (g !== undefined && g === NAME_GROUP.get(k)) return 3;
+    const a = q.slice(2), b = k.slice(2);
+    if (a.length >= minPrefix && b.startsWith(a)) return 2;
+    const n = Math.min(a.length, b.length), t = n <= 3 ? 0 : n <= 7 ? 1 : 2;
+    return t && Math.abs(a.length - b.length) <= t && lev(a, b, t) <= t ? 1 : 0;
+  }
+  const bestScore = (q, keys, minPrefix) => keys.reduce((m, k) => Math.max(m, wordScore(q, k, minPrefix)), 0);
+
   async function namesView(q) {
     currentIssueDate = null;
     app.innerHTML = `<h1>${T().namesTitle}</h1><div class="loading-box"><span class="spinner" aria-hidden="true"></span><p class="loading">${T().namesLoading}</p><p class="loading loading-more" hidden>${T().namesLoadingMore}</p></div>`;
@@ -555,11 +634,14 @@
     const nPeople = db.surnames.reduce((n, e) => n + e.people.length, 0);
     const letters = [];
     // search keys are folded once here, not on every keystroke
-    for (const x of list) {
+    list.forEach((x, k) => {
       if (letters[letters.length - 1] !== x.L) letters.push(x.L);
+      x.k = k;
       x.hay = foldLat([x.e.he, x.e.lat, ...(x.e.vars || [])].join(' '));
       x.hayHe = /[א-ת]/.test(x.hay) ? foldHe(x.hay) : '';
-    }
+      x.surK = nameKeys([x.e.he, x.e.lat, ...(x.e.vars || [])].join(' '));
+      x.perK = x.e.people.map(p => nameKeys((p.he || '') + ' ' + (p.lat || '')));
+    });
     const rowHtml = x => {
       const e = x.e, n = new Set(e.people.flatMap(p => p.refs.map(r => r[0] + '|' + r[1]))).size;
       return `<details class="nm-sur" data-i="${x.i}">
@@ -655,16 +737,56 @@
     });
 
     const input = document.getElementById('names-q'), none = app.querySelector('.names-none');
+    // one search word: surnames containing it, then surnames spelled close to it.
+    // two words or more: one of them is the surname (in any position), the others the given name \u2014 so
+    // "Salomon Gutman", "Gutman Salomon", "Szlama Guttmann" and "\u05E9. \u05D2\u05D5\u05D8\u05DE\u05DF" all find Salomon Gutman; surnames
+    // that fit but have no such given name follow after the full matches
+    function searchNames(raw) {
+      const needle = foldLat(raw), needleHe = /[\u05D0-\u05EA]/.test(needle) ? foldHe(needle) : '';
+      const toks = raw.split(/[\s,;]+/).map(nameKeys).flat();
+      const contains = x => x.hay.includes(needle) || (needleHe && x.hayHe.includes(needleHe));
+      const scored = [];
+      for (const x of list) {
+        if (contains(x)) { scored.push({ x, lvl: toks.length > 1 ? 2 : 3, s: 9, per: [] }); continue; }
+        let best = null;
+        toks.forEach((t, si) => {
+          const s = bestScore(t, x.surK, 3);
+          if (!s || (toks.length === 1 && t.length < 6)) return;   // a short single word: no guessing
+          const rest = toks.filter((_, j) => j !== si);
+          const per = rest.length ? x.perK.map((ks, pi) => rest.every(r => bestScore(r, ks, 1)) ? pi : -1).filter(pi => pi >= 0) : [];
+          const lvl = per.length ? 3 : rest.length && rest.every(r => bestScore(r, x.surK, 3)) ? 2 : 1;
+          if (!best || lvl > best.lvl || (lvl === best.lvl && s > best.s)) best = { x, lvl, s, per };
+        });
+        if (best) scored.push(best);
+      }
+      return scored.sort((a, b) => b.lvl - a.lvl || b.s - a.s || a.x.k - b.x.k);
+    }
     function applyFilter() {
-      const needle = foldLat(input.value.trim()), needleHe = /[\u05D0-\u05EA]/.test(needle) ? foldHe(needle) : '';
-      const hits = needle ? list.filter(x => x.hay.includes(needle) || (needleHe && x.hayHe.includes(needleHe))) : list;
+      const raw = input.value.trim(), needle = foldLat(raw);
+      const found = needle ? searchNames(raw) : null;
+      const hits = found ? found.map(f => f.x) : list;
       renderIndex(hits);
       none.hidden = hits.length > 0;
       app.querySelector('.names-letters').hidden = !!needle;
-      if (hits.length === 1 && needle) {                  // a single match opens by itself
-        const sec = root.querySelector('.names-letter');
-        fillSection(sec);
-        sec.querySelector('.nm-sur').open = true;
+      if (!found) return;
+      // a single match opens by itself; so do the first few surnames whose given name was found too
+      const open = hits.length === 1 ? found : found.filter(f => f.per.length && f.s >= 2).slice(0, 3);
+      for (const f of open) {
+        const d = root.querySelector(`.nm-sur[data-i="${f.x.i}"]`) || (() => {
+          fillSection([...root.querySelectorAll('.names-letter')].find(s => s.dataset.letter === f.x.L));
+          return root.querySelector(`.nm-sur[data-i="${f.x.i}"]`);
+        })();
+        if (!d) continue;
+        fillSurname(d);
+        // the people the search found move to the head of the surname's list, opened
+        const body = d.querySelector('.nm-body'), after = body.querySelector('.nm-vars');
+        f.per.slice().reverse().forEach(pi => {
+          const pd = body.querySelector(`.nm-per[data-p="${pi}"]`);
+          if (!pd) return;
+          body.insertBefore(pd, after ? after.nextSibling : body.firstChild);
+          pd.open = true;
+        });
+        d.open = true;
       }
     }
     input.addEventListener('input', () => {
